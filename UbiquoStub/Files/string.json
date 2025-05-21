@@ -1,0 +1,46 @@
+{
+    "classUnderTest": "string",
+    "mocksToIntegration": [
+        {
+            "mockName": "string",
+            "serviceName": "string"
+        }
+    ],
+    "tests": [
+        {
+            "methodName": "string",
+            "inputs": [
+                {
+                    "type": "string",
+                    "value": "string"
+                }
+            ],
+            "output": {
+                "type": "string",
+                "value": "string"
+            },
+            "expected": {
+                "type": "string",
+                "value": "string"
+            },
+            "mocks": [
+                {
+                    "name": "string",
+                    "method": {
+                        "methodName": "string",
+                        "methodInputs": [
+                            {
+                                "type": "string",
+                                "value": "string"
+                            }
+                        ],
+                        "methodOutput": {
+                            "type": "string",
+                            "value": "string"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

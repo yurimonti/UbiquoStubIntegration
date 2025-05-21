@@ -1,0 +1,24 @@
+{
+    "sutName": "customer",
+    "stubs": [
+        {
+            "name": "fraud",
+            "testName": "controllerCorrectResponse",
+            "order":1,
+            "host": "http://localhost:8085/",
+            "request": {
+                "method": "GET",
+                "uri": "/api/v1/fraud-check/1",
+                "body": null,
+                "headers": null
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "isFraudster": false
+                },
+                "headers": null
+            }
+        }
+    ]
+}

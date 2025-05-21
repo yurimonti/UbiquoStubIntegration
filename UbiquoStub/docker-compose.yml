@@ -1,0 +1,13 @@
+services:
+    ubiquo-db:
+        image: postgres
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: test-stubs
+        ports:
+            - "5432:5432"
+    adminer:
+        image: adminer
+        ports:
+            - "8081:8080" 

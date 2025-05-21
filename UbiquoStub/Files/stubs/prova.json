@@ -1,0 +1,155 @@
+[
+    {
+        "serviceName": "stats",
+        "request": {
+            "method": "PUT",
+            "uri": "/statistics/test",
+            "host": "http://localhost:8080/",
+            "headers": null,
+            "body": {
+                "name": "test",
+                "note": "test note",
+                "incomes": [
+                    {
+                        "title": "Salary",
+                        "amount": 9100,
+                        "currency": "USD",
+                        "period": "MONTH",
+                        "icon": "wallet"
+                    }
+                ],
+                "expenses": [
+                    {
+                        "title": "Grocery",
+                        "amount": 10,
+                        "currency": "USD",
+                        "period": "DAY",
+                        "icon": "meal"
+                    }
+                ],
+                "saving": {
+                    "amount": 1500,
+                    "currency": "USD",
+                    "interest": 3.32,
+                    "deposit": true,
+                    "capitalization": false
+                }
+            }
+        },
+        "response": {
+            "status": 200,
+            "headers": null,
+            "body": {}
+        }
+    },
+    {
+        "serviceName": "node",
+        "request": {
+            "method": "POST",
+            "uri": "/node/spring-data",
+            "host": "http://localhost:8001/",
+            "headers": null,
+            "body": {
+                "productName": "name",
+                "productId": 13
+            }
+        },
+        "response": {
+            "status": 200,
+            "headers": null,
+            "body": {
+                "message": "nodejs service Repond : Data received successfully in Node.js",
+                "dataFromSpring": {
+                    "productName": "name",
+                    "productId": 13
+                }
+            }
+        }
+    },
+    {
+        "serviceName": "userservice",
+        "request": {
+            "method": "GET",
+            "uri": "/getUserByUsername/username",
+            "host": "http://localhost:8001/v1/user/",
+            "headers": {
+                "Authorization": [
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VybmFtZSIsImlzcyI6IlJPTEVfVVNFUiIsImlhdCI6MTc0NTIzNTk4NCwiZXhwIjoxNzQ1MjM5NTg0fQ.mhJM2MYSo6bCyRI2uDZqtlTlapLMS3fccCqc1Lib4Xw"
+                ]
+            },
+            "body": null
+        },
+        "response": {
+            "status": 200,
+            "headers": null,
+            "body": {
+                "id": "3bc41c18-5de2-4624-a220-ca847e817a5d",
+                "username": "username",
+                "password": "$2a$10$I7UfEJjHkuLVufABWxw7ru6Q4VGPHTxLNzMSJlcfzHraAmdR4uW8G",
+                "role": "USER"
+            }
+        }
+    },
+    {
+        "serviceName": "boh",
+        "request": {
+            "method": "POST",
+            "uri": "/node/spring-data",
+            "host": "http://localhost:8001/",
+            "headers": {
+                "Authorization": [
+                    "Bearer token---"
+                ]
+            },
+            "body": {
+                "productName": "name",
+                "productId": 13
+            }
+        },
+        "response": {
+            "status": 200,
+            "headers": null,
+            "body": {
+                "message": "nodejs service Repond : Data received successfully in Node.js",
+                "dataFromSpring": {
+                    "productName": "name",
+                    "productId": 13
+                }
+            }
+        }
+    },
+    {
+        "serviceName": "nominatim",
+        "request": {
+            "method": "GET",
+            "uri": "/search?city=Camerino\u0026format=json",
+            "host": "http://localhost:8080/",
+            "headers": {},
+            "body": null
+        },
+        "response": {
+            "status": 200,
+            "headers": {},
+            "body": [
+                {
+                    "place_id": 412112,
+                    "licence": "Data \u00A9 OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+                    "osm_type": "relation",
+                    "osm_id": 42321,
+                    "boundingbox": [
+                        43.0762421,
+                        43.1967403,
+                        12.9801112,
+                        13.1679922
+                    ],
+                    "lat": 43.1357641,
+                    "lon": 13.0683092,
+                    "display_name": "Camerino, Macerata, Marche, 62032, Italia",
+                    "class": "boundary",
+                    "type": "administrative",
+                    "importance": 0.29667666666666664
+                }
+            ]
+        }
+    }
+]

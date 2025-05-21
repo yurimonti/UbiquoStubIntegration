@@ -1,0 +1,46 @@
+[
+  {
+    "serviceName": "nominatim",
+    "request": {
+      "method": "GET",
+      "uri": "/search?city=Camerino\u0026format=json",
+      "host": "http://localhost:8080",
+      "headers": null,
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "headers": { "Content-Type": "application/json" },
+      "body": [
+        {
+          "place_id": 378262,
+          "licence": "Data \u00A9 OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+          "osm_type": "relation",
+          "osm_id": 42321,
+          "boundingbox": [ 43.0762421, 43.1967403, 12.9801112, 13.1679922 ],
+          "lat": "43.1357641",
+          "lon": "13.0683092",
+          "display_name": "Camerino, Macerata, Marche, 62032, Italy",
+          "class": "boundary",
+          "type": "administrative",
+          "importance": 0.296676666666667
+        }
+      ]
+    }
+  },
+  {
+    "serviceName": "nominatim",
+    "request": {
+      "method": "GET",
+      "uri": "/some/thing",
+      "host": "ciao",
+      "headers": null,
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "headers": { "Content-Type": "text/plain" },
+      "body": { "message": "Hello, world!" }
+    }
+  }
+]
