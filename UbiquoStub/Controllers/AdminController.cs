@@ -1,19 +1,22 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using UbiquoStub.Abstractions;
+using UbiquoStub.Abstractions.Repositories;
 using UbiquoStub.Abstractions.Services;
 using UbiquoStub.Abstractions.Stubs;
 using UbiquoStub.Abstractions.Utils;
 using UbiquoStub.Models.DTOs;
 using UbiquoStub.Models.DTOs.Stubs;
+using UbiquoStub.Models.Entities;
 
 namespace UbiquoStub.Controllers
 {
     [Route("api/v2/admin/stubs")]
     [ApiController]
-    public class AdminController(IStubsReader stubReader, IStubsWriter stubWriter, 
+    public class AdminController(IStubsReader stubReader, IStubsWriter stubWriter,
     IRequestUtil requestUtil, IStubService stubService,
-    ISutConverter sutConverter, ILogger<AdminController> logger) : ControllerBase
+    IEntityToDtoConverter<Sut, SutDto> sutConverter, IUnitOfWork unitOfWork,
+    IEntityToDtoConverter<StubResult, StubResultDto> stubResultConverter, ILogger<AdminController> logger) : ControllerBase
     {
         // [HttpGet]
         // [EndpointName("Admin Get Stubs")]
@@ -29,8 +32,8 @@ namespace UbiquoStub.Controllers
         [EndpointDescription("Get all stubs in the database for a sut")]
         public async Task<IResult> GetSutStubs()
         {
-            var result = await stubService.GetSutsAsync(null,true);
-            var dtos = result.Select(sutConverter.EntityToDto);
+            var result = await stubService.GetSutsAsync(null, true);
+            var dtos = result.Select(sutConverter.Convert);
             return Results.Ok(dtos);
         }
 
@@ -42,8 +45,9 @@ namespace UbiquoStub.Controllers
             try
             {
                 var addedSut = await stubService.AddStub(body.sutName, body.stubs);
-                return Results.Ok(addedSut);
-            } catch(Exception ex)
+                return Results.Ok(sutConverter.Convert(addedSut));
+            }
+            catch (Exception ex)
             {
                 return Results.BadRequest(new ResponseMessageDto(ex.Message));
             }
@@ -57,6 +61,68 @@ namespace UbiquoStub.Controllers
         {
             await stubService.DeleteStubsByIds(body.sutId, body.ids);
             return Results.Ok("Stubs Deleted");
+        }
+
+        [HttpGet("results")]
+        [EndpointName("Admin Test Results")]
+        [EndpointDescription("Get test results in the DB")]
+        public async Task<IResult> GetTestResults()
+        {
+            try
+            {
+                var results = await unitOfWork.StubResultRepository.Get(null, null, "Stub.Response,Stub.Request");
+                var resultsDto = results.Select(stubResultConverter.Convert);
+                //return Results.Ok(results);
+                return Results.Ok(resultsDto);
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new ResponseMessageDto(ex.Message));
+            }
+        }
+        
+        [HttpGet("results/file")]
+        [EndpointName("Admin Download Test Results")]
+        [EndpointDescription("Get test results file")]
+        public async Task<IResult> DownloadTestResults()
+        {
+            try
+            {
+                var results = await unitOfWork.StubResultRepository.Get(null, null, "Stub.Response,Stub.Request");
+                var resultsDtos = results.Select(stubResultConverter.Convert);
+                string toWriteString = JsonSerializer.Serialize(resultsDtos, JsonSerializerOptions.Web);
+                // Generate file path
+                string fileName = $"data_{DateTime.UtcNow.Ticks}.json";
+                string filePath = Path.Combine(Path.GetTempPath(), fileName);
+                // Write to file
+                await System.IO.File.WriteAllTextAsync(filePath, toWriteString);
+                // Open the file stream
+                Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                // Register deletion of the file after response is completed
+                HttpContext.Response.OnCompleted(async () =>
+                {
+                    try
+                    {
+                        stream.Dispose(); // Close the stream
+                        System.IO.File.Delete(filePath);
+                        logger.LogInformation("Temporary file {FilePath} deleted successfully.", filePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to delete temporary file {FilePath}.", filePath);
+                    }
+
+                    await Task.CompletedTask;
+                });
+
+                // Return the file as a download
+                return Results.File(stream, "application/json", fileName);
+
+            } catch(Exception ex)
+            {
+                return Results.BadRequest(new ResponseMessageDto(ex.Message));
+            }
         }
 
         // [HttpPost]

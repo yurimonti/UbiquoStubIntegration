@@ -11,5 +11,4 @@ public interface IRequestConverter
 
     RequestEntity DtoToEntity(ReqDto toConvert);
 
-    ReqDto EntityToDto(RequestEntity toConvert);
 }

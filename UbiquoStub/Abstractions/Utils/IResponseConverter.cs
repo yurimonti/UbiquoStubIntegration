@@ -14,5 +14,5 @@ public interface IResponseConverter
 
     ResponseEntity DtoToEntity(ResDto toConvert);
 
-    ResDto EntityToDto(ResponseEntity toConvert);
+    // ResDto EntityToDto(ResponseEntity toConvert);
 }

@@ -13,6 +13,8 @@ using UbiquoStub.Abstractions.Stubs;
 using UbiquoStub.Abstractions.Utils;
 using UbiquoStub.Data;
 using UbiquoStub.Models;
+using UbiquoStub.Models.DTOs.Stubs;
+using UbiquoStub.Models.Entities;
 using UbiquoStub.Options;
 using UbiquoStub.Repositories;
 using UbiquoStub.Services;
@@ -57,9 +59,12 @@ builder.Services.AddSingleton<IRequestUtil, RequestUtil>();
 builder.Services.AddSingleton<IResponseUtil, ResponseUtil>();
 builder.Services.AddSingleton<IRequestConverter, RequestDeserializer>();
 builder.Services.AddSingleton<IResponseConverter, ResponseDeserializer>();
-builder.Services.AddSingleton<ISutConverter, SutConverter>();
+builder.Services.AddSingleton<IEntityToDtoConverter<RequestEntity, ReqDto>, RequestDeserializer>();
+builder.Services.AddSingleton<IEntityToDtoConverter<ResponseEntity, ResDto>, ResponseDeserializer>();
+builder.Services.AddSingleton<IEntityToDtoConverter<Sut, SutDto>, SutConverter>();
+builder.Services.AddSingleton<IEntityToDtoConverter<StubResult, StubResultDto>,StubResultConverter>();
 //builder.Services.AddSingleton<ITestConverter, TestConverter>();
-builder.Services.AddSingleton<IStubConverter, StubConverter>();
+builder.Services.AddSingleton<IEntityToDtoConverter<Stub, NewStubDto>, StubConverter>();
 
 builder.Services.AddHttpContextAccessor();
 

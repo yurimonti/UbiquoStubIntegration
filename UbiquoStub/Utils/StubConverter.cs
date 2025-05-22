@@ -5,15 +5,15 @@ using UbiquoStub.Models.Entities;
 
 namespace UbiquoStub.Utils;
 
-public class StubConverter(IRequestConverter requestConverter,
-    IResponseConverter responseConverter) : IStubConverter
+public class StubConverter(IEntityToDtoConverter<RequestEntity, ReqDto> requestConverter,
+    IEntityToDtoConverter<ResponseEntity, ResDto> responseConverter) : IEntityToDtoConverter<Stub, NewStubDto>
 {
-    public NewStubDto EntityToDto(Stub toConvert)
+    public NewStubDto Convert(Stub toConvert)
     {
         NewStubDto dto = new NewStubDto(toConvert.Name, toConvert.TestName,
             toConvert.Order, toConvert.Host,
-            requestConverter.EntityToDto(toConvert.Request),
-            responseConverter.EntityToDto(toConvert.Response));
+            requestConverter.Convert(toConvert.Request),
+            responseConverter.Convert(toConvert.Response));
         return dto;
     }
 }

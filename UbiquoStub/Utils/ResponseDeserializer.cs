@@ -9,7 +9,7 @@ using UbiquoStub.Models.Entities;
 
 namespace UbiquoStub.Utils
 {
-    public class ResponseDeserializer : IResponseConverter
+    public class ResponseDeserializer : IEntityToDtoConverter<ResponseEntity, ResDto>, IResponseConverter
     {
         public HttpResponseMessage Deserialize(ResponseDto toDeserialize)
         {
@@ -61,7 +61,7 @@ namespace UbiquoStub.Utils
             return request;
         }
 
-        public ResDto EntityToDto(ResponseEntity toConvert)
+        public ResDto Convert(ResponseEntity toConvert)
         {
             ResDto response = new ResDto(toConvert.Status, toConvert.Body, toConvert.Headers);
             return response;

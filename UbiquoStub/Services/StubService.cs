@@ -13,8 +13,7 @@ namespace UbiquoStub.Services;
 public class StubService(
     IUnitOfWork unitOfWork,
     IRequestConverter requestConverter,
-    IResponseConverter responseConverter,
-    ISutConverter sutConverter) : IStubService
+    IResponseConverter responseConverter) : IStubService
 {
 
     public async Task<Sut> GetSutAsync(Expression<Func<Sut,bool>> filter = null, bool? withRelations = null) {
@@ -39,7 +38,7 @@ public class StubService(
             includePath);
         return results;
     }
-    public async Task<SutDto> AddStub(string sutName, IEnumerable<NewStubDto> stubs)
+    public async Task<Sut> AddStub(string sutName, IEnumerable<NewStubDto> stubs)
     {
         var suts = await GetSutsAsync(s => s.Name == sutName, true);
         bool sutExists = suts.Count() != 0;
@@ -63,7 +62,7 @@ public class StubService(
         if (sutExists) unitOfWork.SutRepository.Update(sut);
         else await unitOfWork.SutRepository.Insert(sut);
         await unitOfWork.SaveAsync();
-        return sutConverter.EntityToDto(sut);
+        return sut;
     }
 
     public async Task DeleteStubsByIds(long sutId, long[] ids)

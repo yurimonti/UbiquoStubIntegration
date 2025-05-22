@@ -5,12 +5,12 @@ using UbiquoStub.Models.Entities;
 
 namespace UbiquoStub.Utils;
 
-public class TestConverter(IStubConverter stubConverter) : ITestConverter
+public class TestConverter(IEntityToDtoConverter<Stub, NewStubDto> stubConverter) : IEntityToDtoConverter<Test, TestDto>
 {
-    public TestDto EntityToDto(Test toConvert)
+    public TestDto Convert(Test toConvert)
     {
         TestDto dto = new TestDto(toConvert.TestName,
-            toConvert.Stubs.Select(stubConverter.EntityToDto));
+            toConvert.Stubs.Select(stubConverter.Convert));
         return dto;
     }
 }

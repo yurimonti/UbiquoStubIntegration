@@ -5,7 +5,7 @@ using UbiquoStub.Models.Entities;
 
 namespace UbiquoStub.Utils;
 
-public class RequestDeserializer : IRequestConverter
+public class RequestDeserializer : IEntityToDtoConverter<RequestEntity, ReqDto>, IRequestConverter
 {
     public HttpRequestMessage Deserialize(RequestDto toDeserialize)
     {
@@ -40,7 +40,7 @@ public class RequestDeserializer : IRequestConverter
         return request;
     }
 
-    public ReqDto EntityToDto(RequestEntity toConvert)
+    public ReqDto Convert(RequestEntity toConvert)
     {
         ReqDto request = new ReqDto(toConvert.Uri,toConvert.Method,toConvert.Body,toConvert.Headers);
         return request;
