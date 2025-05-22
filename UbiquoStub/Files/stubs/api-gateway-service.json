@@ -1,0 +1,113 @@
+{
+    "sutName": "api-gateway-service",
+    "stubs": [
+        {
+            "name": "customer-service",
+            "testName": "getOwnerDetails_withAvailableVisitsService",
+            "order": 0,
+            "host": "http://localhost:8083/",
+            "request": {
+                "uri": "/owners/2",
+                "method": "GET",
+                "body": null,
+                "headers": null
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "id": 2,
+                    "firstName": "Betty",
+                    "lastName": "Davis",
+                    "address": "638 Cardinal Ave.",
+                    "city": "Sun Prairie",
+                    "telephone": "6085551749",
+                    "pets": [
+                        {
+                            "id": 2,
+                            "name": "Basil",
+                            "birthDate": "2012-08-06",
+                            "type": {
+                                "id": 6,
+                                "name": "hamster"
+                            }
+                        }
+                    ]
+                },
+                "headers": null
+            }
+        },
+        {
+            "name": "visits-service",
+            "testName": "getOwnerDetails_withAvailableVisitsService",
+            "order": 0,
+            "host": "http://localhost:8082/",
+            "request": {
+                "uri": "/pets/visits?petId=2",
+                "method": "GET",
+                "body": null,
+                "headers": null
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "items": []
+                },
+                "headers": null
+            }
+        },
+        {
+            "name": "customer-service",
+            "testName": "bohTest",
+            "order": 0,
+            "host": "http://localhost:8083/",
+            "request": {
+                "uri": "/owners/1",
+                "method": "GET",
+                "body": null,
+                "headers": null
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "id": 1,
+                    "firstName": "George",
+                    "lastName": "Franklin",
+                    "address": "110 W. Liberty St.",
+                    "city": "Madison",
+                    "telephone": "6085551023",
+                    "pets": [
+                        {
+                            "id": 1,
+                            "name": "Leo",
+                            "birthDate": "2010-09-07",
+                            "type": {
+                                "id": 1,
+                                "name": "cat"
+                            }
+                        }
+                    ]
+                },
+                "headers": null
+            }
+        },
+        {
+            "name": "visits-service",
+            "testName": "bohTest",
+            "order": 0,
+            "host": "http://localhost:8082/",
+            "request": {
+                "uri": "/pets/visits?petId=1",
+                "method": "GET",
+                "body": null,
+                "headers": null
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "items": []
+                },
+                "headers": null
+            }
+        }
+    ]
+}
