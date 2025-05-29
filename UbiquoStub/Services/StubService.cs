@@ -13,7 +13,10 @@ namespace UbiquoStub.Services;
 public class StubService(
     IUnitOfWork unitOfWork,
     IRequestConverter requestConverter,
-    IResponseConverter responseConverter) : IStubService
+    IResponseConverter responseConverter,
+    IEntityToDtoConverter<RequestEntity, ReqDto> requestDtoConverter,
+    IEntityToDtoConverter<ResponseEntity, ResDto> responseDtoConverter,
+    ILogger<StubService> logger) : IStubService
 {
 
     public async Task<Sut> GetSutAsync(Expression<Func<Sut,bool>> filter = null, bool? withRelations = null) {
@@ -43,7 +46,7 @@ public class StubService(
         var suts = await GetSutsAsync(s => s.Name == sutName, true);
         bool sutExists = suts.Count() != 0;
         Sut sut = sutExists ? suts.First() : new Sut() { Name = sutName, Stubs = [] };
-        List<Stub> stubList = sut.Stubs?.ToList() ?? new List<Stub>();
+        IList<Stub> stubList = sut.Stubs?.ToList() ?? new List<Stub>();
         foreach (NewStubDto stub in stubs)
         {
             Stub stubToAdd = new Stub()
@@ -55,8 +58,10 @@ public class StubService(
                 Request = requestConverter.DtoToEntity(stub.request),
                 Response = responseConverter.DtoToEntity(stub.response),
             };
-            if(!stubList.Select(s => JsonSerializer.Serialize(s)).Contains(JsonSerializer.Serialize(stubToAdd)))
-                stubList.Add(stubToAdd);
+            if (!SutAlreadyContainsAStub(stubList, stubToAdd)) stubList.Add(stubToAdd);
+            else OverrideStub(stubList, stubToAdd);
+            //if(!stubList.Select(s => JsonSerializer.Serialize(s)).Contains(JsonSerializer.Serialize(stubToAdd)))
+            //    stubList.Add(stubToAdd);
         }
         sut.Stubs = stubList;
         if (sutExists) unitOfWork.SutRepository.Update(sut);
@@ -80,5 +85,33 @@ public class StubService(
             unitOfWork.SutRepository.Update(sut);
         }
         await unitOfWork.SaveAsync();
+    }
+
+    private Stub? StubToOverride(IList<Stub> stubList, Stub toCheck)
+    {
+        return stubList.FirstOrDefault(s =>
+                    s.Host == toCheck.Host && s.Name == toCheck.Name &&
+                    s.TestName == toCheck.TestName &&
+                    requestDtoConverter.Convert(s.Request) == requestDtoConverter.Convert(toCheck.Request));
+    }
+
+    private bool SutAlreadyContainsAStub(IList<Stub> stubList, Stub toCheck)
+    {
+        bool isInList = StubToOverride(stubList,toCheck) is not null;
+        return isInList;
+    }
+
+    private void OverrideStub(IList<Stub> stubList, Stub overrideWith)
+    {
+        Stub? toOverride = StubToOverride(stubList, overrideWith);
+        if(toOverride is not null)
+        {
+            int toOverrideIndex = stubList.IndexOf(toOverride);
+            if (toOverrideIndex > -1)
+            {
+                stubList[toOverrideIndex] = overrideWith;
+            }
+        }
+        
     }
 }

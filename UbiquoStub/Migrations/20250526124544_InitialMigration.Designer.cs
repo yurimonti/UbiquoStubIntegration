@@ -11,7 +11,7 @@ using UbiquoStub.Data;
 namespace UbiquoStub.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250522075547_InitialMigration")]
+    [Migration("20250526124544_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -89,7 +89,7 @@ namespace UbiquoStub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Order")
+                    b.Property<int?>("Order")
                         .HasColumnType("integer");
 
                     b.Property<long>("RequestId")
@@ -102,7 +102,6 @@ namespace UbiquoStub.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("TestName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -133,6 +132,10 @@ namespace UbiquoStub.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("StubDto")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<long>("StubId")
                         .HasColumnType("bigint");

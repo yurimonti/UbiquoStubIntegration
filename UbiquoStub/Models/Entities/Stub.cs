@@ -6,9 +6,9 @@ public class Stub
 {
     public long Id {get;set;}
     public string Name {get;set;}
-    public string TestName { get; set; }
-    public int Order { get; set; }
-    
+    public string? TestName { get; set; } = null;
+    public int? Order { get; set; } = null;
+
     // public string TestName { get; set; }
     public string Host { get; set; }
     #region 1-to-1 with RequestEntity

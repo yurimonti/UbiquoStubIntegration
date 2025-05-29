@@ -13,6 +13,7 @@ using UbiquoStub.Abstractions.Utils;
 using UbiquoStub.Exceptions;
 using UbiquoStub.Models.DTOs;
 using UbiquoStub.Models.Entities;
+using UbiquoStub.Models.DTOs.Stubs;
 
 namespace UbiquoStub.Controllers
 {
@@ -21,17 +22,18 @@ namespace UbiquoStub.Controllers
     public class StubController(IHttpContextAccessor accessor, IStubsSelector stubSelector,
         IRequestUtil requestUtil, IStubService stubService,
         IResponseUtil responseUtil,
+        IEntityToDtoConverter<Stub, NewStubDto> stubConverter,
         IUnitOfWork unitOfWork, ILogger<StubController> logger) : ControllerBase
     {
 
-        private async Task<IResult> Stubbing(string serviceName, string requestMethod,
+        private async Task<IResult> Stubbing(string sutName, string serviceName, string requestMethod,
         IHeaderDictionary requestHeaders, string uri, JsonNode? body = null)
         {
             var testStub = body is null ?
-                await stubSelector.SelectStub(stub => stub.Name == serviceName
+                await stubSelector.SelectStub(sutName, stub => stub.Name == serviceName
                     && stub.Request.Method == requestMethod && stub.Request.Uri == uri
                     && requestUtil.RequestHeaderContainsHeadersDto(requestHeaders, stub.Request?.Headers)) :
-                await stubSelector.SelectStub(stub => stub.Name == serviceName
+                await stubSelector.SelectStub(sutName, stub => stub.Name == serviceName
                     && stub.Request.Method == requestMethod && stub.Request.Uri == uri
                     // I don't remember why i need to compare with a Subset...
                     && BodyUtil.GptIsJsonSubset(stub.Request.Body, body)
@@ -41,6 +43,7 @@ namespace UbiquoStub.Controllers
                 IsIntegration = false,
                 Status = TestStatus.PASSED,
                 Stub = testStub,
+                StubDto = stubConverter.Convert(testStub),
                 ActualResponse = null
             };
             await unitOfWork.StubResultRepository.Insert(sr);
@@ -50,17 +53,17 @@ namespace UbiquoStub.Controllers
             return Results.Json(testStub.Response.Body, statusCode: testStub.Response.Status);
         }
 
-        [HttpGet("{serviceName}/stubs/{*path}")]
+        [HttpGet("{sutName}/{serviceName}/stubs/{*path}")]
         [EndpointName("Ubiquo GET Mock From Stubs V2")]
         [EndpointDescription("Get the 'GET' response associated to the sent request; these information are retrieved from database")]
-        public async Task<IResult> GetResponseStub(string serviceName, string path)
+        public async Task<IResult> GetResponseStub(string sutName, string serviceName, string path)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Stubbing(serviceName, requestMethod, requestHeaders, uri, null);
+                IResult result = await Stubbing(sutName, serviceName, requestMethod, requestHeaders, uri, null);
                 return result;
             }
             catch (NoStubInSUTException ex)
@@ -73,17 +76,18 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpPost("{serviceName}/stubs/{*path}")]
+        [HttpPost("{sutName}/{serviceName}/stubs/{*path}")]
         [EndpointName("Ubiquo POST Mock From Stubs V2")]
         [EndpointDescription("Get the 'POST' response associated to the sent request; these information are retrieved from database")]
-        public async Task<IResult> PostResponseStub(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> PostResponseStub(string sutName, string serviceName,
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Stubbing(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Stubbing(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
             }
             catch (NoStubInSUTException ex)
@@ -96,17 +100,18 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpPut("{serviceName}/stubs/{*path}")]
+        [HttpPut("{sutName}/{serviceName}/stubs/{*path}")]
         [EndpointName("Ubiquo PUT Mock From Stubs V2")]
         [EndpointDescription("Get the 'PUT' response associated to the sent request; these information are retrieved from database")]
-        public async Task<IResult> PutResponseStub(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> PutResponseStub(string sutName, string serviceName, 
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Stubbing(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Stubbing(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
             }
             catch (NoStubInSUTException ex)

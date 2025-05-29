@@ -29,10 +29,11 @@ namespace UbiquoStub.Services.Stubs
             return selectedStub;
         }
 
-        public async Task<Stub> SelectStub(Func<Stub, bool> predicate)
+        public async Task<Stub> SelectStub(string sutName, Func<Stub, bool> predicate)
         {
-            var stubs = await stubService.GetStubsAsync(null, true);
-            var stub = stubs.Where(predicate).FirstOrDefault();
+            Sut sut = await stubService.GetSutAsync(s => s.Name == sutName, true);
+            var stubs = sut.Stubs;
+            var stub = stubs.FirstOrDefault(predicate);
             if (stub is null) throw new NoStubInSUTException("Stub in SUT does not exist");
             return stub;
         }

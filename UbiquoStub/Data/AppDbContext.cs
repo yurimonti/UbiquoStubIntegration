@@ -33,6 +33,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             r => JsonSerializer.Deserialize<ResDto>(r, serializerOptions)!
         );
 
+        var stubDtoConverter = new ValueConverter<NewStubDto, string>(
+            r => JsonSerializer.Serialize(r, serializerOptions),
+            r => JsonSerializer.Deserialize<NewStubDto>(r, serializerOptions)!
+        );
+
         var dictConverter = new ValueConverter<IDictionary<string, IEnumerable<string>>, string>(
             v => JsonSerializer.Serialize(v, serializerOptions),
             v => JsonSerializer.Deserialize<IDictionary<string, IEnumerable<string>>>(v, serializerOptions)!
@@ -73,6 +78,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasOne(i => i.Stub);
             entity.Property(p => p.ActualResponse).HasConversion(resDtoConverter).HasColumnType("jsonb");
+            entity.Property(p => p.StubDto).HasConversion(stubDtoConverter).HasColumnType("jsonb");
         });
     }
 }

@@ -23,21 +23,22 @@ namespace UbiquoStub.Controllers
     public class IntegrationController(IHttpContextAccessor accessor, IStubsSelector stubSelector,
         IResponseConverter responseConverter, IUnitOfWork unitOfWork,
         IResponseUtil responseUtil,
-        IRequestUtil requestUtil, ILogger<IntegrationController> logger) : ControllerBase
+        IRequestUtil requestUtil, 
+        IEntityToDtoConverter<Stub, NewStubDto> stubConverter, ILogger<IntegrationController> logger) : ControllerBase
     {
         private JsonNodeOptions _jsonNodeOptions = new JsonNodeOptions() { PropertyNameCaseInsensitive = true };
 
-        private async Task<IResult> Integration(string serviceName, string requestMethod,
+        private async Task<IResult> Integration(string sutName, string serviceName, string requestMethod,
         IHeaderDictionary requestHeaders, string uri, JsonNode? body)
         {
             var responsesComparator = new ResponsesComparator();
             // Get TestStub From the running test by using filter
             var testStub = body is not null ?
-                await stubSelector.SelectStub(stub =>
+                await stubSelector.SelectStub(sutName, stub =>
                     stub.Name == serviceName && stub.Request.Method == requestMethod && stub.Request.Uri == uri
                     && requestUtil.RequestHeaderContainsHeadersDto(requestHeaders, stub.Request?.Headers)
                     && JsonNode.DeepEquals(stub.Request.Body, body)) :
-                await stubSelector.SelectStub(stub => stub.Name == serviceName
+                await stubSelector.SelectStub(sutName, stub => stub.Name == serviceName
                     && stub.Request.Method == requestMethod && stub.Request.Uri == uri
                     && requestUtil.RequestHeaderContainsHeadersDto(requestHeaders, stub.Request?.Headers));
 
@@ -66,6 +67,7 @@ namespace UbiquoStub.Controllers
                 IsIntegration = true,
                 Status = error is true ? TestStatus.FAILED : TestStatus.PASSED,
                 Stub = testStub,
+                StubDto = stubConverter.Convert(testStub),
                 ActualResponse = actualResponse
             };
             await unitOfWork.StubResultRepository.Insert(sr);
@@ -78,17 +80,22 @@ namespace UbiquoStub.Controllers
         }
 
 
-        [HttpGet("{serviceName}/integration/{*path}")]
+        [HttpGet("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo GET Integration V2")]
-        public async Task<IResult> GetIntegration(string serviceName, string? path = null)
+        public async Task<IResult> GetIntegration(string sutName, string serviceName,
+            string? path = null)
         {
             string requestMethod = HttpContext.Request.Method;
             var requestHeaders = HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Integration(serviceName, requestMethod, requestHeaders, uri, null);
+                IResult result = await Integration(sutName, serviceName, requestMethod, requestHeaders, uri, null);
                 return result;
+            }
+            catch (NoSutFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
             }
             catch (NoStubInSUTException ex)
             {
@@ -100,17 +107,22 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpPost("{serviceName}/integration/{*path}")]
+        [HttpPost("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo POST Integration V2")]
-        public async Task<IResult> GetIntegration(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> GetIntegration(string sutName, string serviceName, 
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = HttpContext.Request.Method;
             var requestHeaders = HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Integration(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Integration(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
+            }
+            catch (NoSutFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
             }
             catch (NoStubInSUTException ex)
             {
@@ -122,17 +134,22 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpDelete("{serviceName}/integration/{*path}")]
+        [HttpDelete("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo DELETE Integration V2")]
-        public async Task<IResult> DeleteResponseIntegration(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> DeleteResponseIntegration(string sutName, string serviceName, 
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Integration(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Integration(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
+            }
+            catch (NoSutFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
             }
             catch (NoStubInSUTException ex)
             {
@@ -144,17 +161,22 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpPatch("{serviceName}/integration/{*path}")]
+        [HttpPatch("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo PATCH Integration V2")]
-        public async Task<IResult> PatchResponseIntegration(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> PatchResponseIntegration(string sutName, string serviceName, 
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Integration(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Integration(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
+            }
+            catch (NoSutFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
             }
             catch (NoStubInSUTException ex)
             {
@@ -166,17 +188,22 @@ namespace UbiquoStub.Controllers
             }
         }
 
-        [HttpPut("{serviceName}/integration/{*path}")]
+        [HttpPut("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo PUT Integration V2")]
-        public async Task<IResult> PutResponseIntegration(string serviceName, string? path = null, [FromBody] JsonNode? body = null)
+        public async Task<IResult> PutResponseIntegration(string sutName, string serviceName, 
+            string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = accessor.HttpContext.Request.Method;
             var requestHeaders = accessor.HttpContext.Request.Headers;
             var uri = requestUtil.GetUriFromRequest(path, accessor.HttpContext.Request.QueryString);
             try
             {
-                IResult result = await Integration(serviceName, requestMethod, requestHeaders, uri, body);
+                IResult result = await Integration(sutName, serviceName, requestMethod, requestHeaders, uri, body);
                 return result;
+            }
+            catch (NoSutFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
             }
             catch (NoStubInSUTException ex)
             {

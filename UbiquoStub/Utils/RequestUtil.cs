@@ -20,7 +20,7 @@ public class RequestUtil : IRequestUtil
         return string.Concat("/", path, query.ToString());
     }
 
-    public bool RequestHeaderContainsHeadersDto(IHeaderDictionary requestHeaders, IDictionary<string, IEnumerable<string>> headersDto)
+    public bool RequestHeaderContainsHeadersDto(IHeaderDictionary requestHeaders, IDictionary<string, IEnumerable<string>>? headersDto)
     {
         if(headersDto is null) return true;
         foreach (var rec in headersDto)

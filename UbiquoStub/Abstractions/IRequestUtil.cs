@@ -9,6 +9,6 @@ public interface IRequestUtil
 {
     string GetUriFromRequest(string path, QueryString query);
 
-    bool RequestHeaderContainsHeadersDto(IHeaderDictionary requestHeaders,IDictionary<string , IEnumerable<string>> headersDto);
+    bool RequestHeaderContainsHeadersDto(IHeaderDictionary requestHeaders,IDictionary<string , IEnumerable<string>>? headersDto);
     bool CompareRequestDto(RequestDto first, RequestDto second);
 }

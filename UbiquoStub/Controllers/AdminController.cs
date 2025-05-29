@@ -59,8 +59,16 @@ namespace UbiquoStub.Controllers
         [EndpointDescription("Delete all stubs in the database")]
         public async Task<IResult> DeleteStubs([FromBody] DeleteBody body)
         {
-            await stubService.DeleteStubsByIds(body.sutId, body.ids);
-            return Results.Ok("Stubs Deleted");
+            try
+            {
+                await stubService.DeleteStubsByIds(body.sutId, body.ids);
+                return Results.Ok("Stubs Deleted");
+            } catch (Exception ex)
+            {
+                return Results.BadRequest(ex.Message);
+            }
+            
+           
         }
 
         [HttpGet("results")]
@@ -80,7 +88,28 @@ namespace UbiquoStub.Controllers
                 return Results.BadRequest(new ResponseMessageDto(ex.Message));
             }
         }
-        
+
+        [HttpDelete("results")]
+        [EndpointName("Admin Test Results Deletion")]
+        [EndpointDescription("Delete test results in the DB")]
+        public async Task<IResult> DeleteTestResults()
+        {
+            try
+            {
+                var results = await unitOfWork.StubResultRepository.Get();
+                foreach (var result in results)
+                {
+                    unitOfWork.StubResultRepository.Delete(result);
+                }
+                await unitOfWork.SaveAsync();
+                return Results.Ok(new ResponseMessageDto($"test results are deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new ResponseMessageDto(ex.Message));
+            }
+        }
+
         [HttpGet("results/file")]
         [EndpointName("Admin Download Test Results")]
         [EndpointDescription("Get test results file")]
