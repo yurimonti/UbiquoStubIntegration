@@ -25,7 +25,7 @@ public class ResponseUtil : IResponseUtil
                         if (values?.Any() == true)
                             response.ContentType = values.First();
                     }
-                    response.Headers[name] = new StringValues(values); ; 
+                    else response.Headers[name] = new StringValues(values); ; 
                 }
                 
             }
@@ -47,7 +47,7 @@ public class ResponseUtil : IResponseUtil
                         if (values?.Any() == true)
                             response.ContentType = values.First();
                     }
-                    response.Headers[name] = (StringValues)values!;
+                    else response.Headers[name] = (StringValues)values!;
                 }
             }
     } 

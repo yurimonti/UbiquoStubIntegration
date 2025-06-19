@@ -11,7 +11,7 @@ using UbiquoStub.Data;
 namespace UbiquoStub.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250526124544_InitialMigration")]
+    [Migration("20250606100658_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
