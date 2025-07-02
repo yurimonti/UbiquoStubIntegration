@@ -15,8 +15,10 @@ namespace UbiquoStub.Services
             //if (!actual.Equals(expectedHeader))
             //    throw new Exception($"Header \n{actualHeader}\n\t, but \n{expectedHeader} \n\t was expected");
             //CHECK BODY
-            JsonNode actualBody = JsonNode.Parse(await actual.Content.ReadAsStringAsync());
-            JsonNode expectedBody = JsonNode.Parse(await expected.Content.ReadAsStringAsync());
+            string actualContent = await actual.Content.ReadAsStringAsync();
+            string expectedContent = await expected.Content.ReadAsStringAsync();
+            JsonNode actualBody = (actualContent == "" || actualContent == null) ? null : JsonNode.Parse(actualContent);
+            JsonNode expectedBody = (expectedContent == "" || expectedContent == null) ? null : JsonNode.Parse(expectedContent);
             CompareJsonBody(actualBody, expectedBody);
         }
 

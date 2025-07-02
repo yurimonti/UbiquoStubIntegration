@@ -48,10 +48,14 @@ namespace UbiquoStub.Controllers
                 BaseAddress = new Uri(testStub.Host)
             };
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Parse(testStub.Request.Method), testStub.Request.Uri);
+            // Add body to request if exists
+            if (body is not null) request.Content = new StringContent(body.ToString(),Encoding.UTF8,"application/json");
+            logger.LogCritical($"request content is \n{body}");
+            //Get actual response
             HttpResponseMessage actual = await client.SendAsync(request);
             ResDto actualResponse = await responseConverter.DeserializeResponseMessageToDto(actual);
             string result = await actual.Content.ReadAsStringAsync();
-            JsonNode? serialization = JsonNode.Parse(result, _jsonNodeOptions);
+            JsonNode? serialization = (result == "" || result == null) ? null : JsonNode.Parse(result, _jsonNodeOptions);
             logger.LogCritical($"actual response body is {serialization}");
             bool error = false;
             try
@@ -109,7 +113,7 @@ namespace UbiquoStub.Controllers
 
         [HttpPost("{sutName}/{serviceName}/integration/{*path}")]
         [EndpointName("Ubiquo POST Integration V2")]
-        public async Task<IResult> GetIntegration(string sutName, string serviceName, 
+        public async Task<IResult> PostIntegration(string sutName, string serviceName, 
             string? path = null, [FromBody] JsonNode? body = null)
         {
             string requestMethod = HttpContext.Request.Method;
